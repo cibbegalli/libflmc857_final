@@ -51,7 +51,6 @@ Matrix* computeHog(GVector* vector_images, Image *mag, Image *phase, int blocks_
         Image* patch = VECTOR_GET_ELEMENT_AS(Image*,vector_images,i);
         Image* patch_mag = VECTOR_GET_ELEMENT_AS(Image*,vector_mag,i);
         Image* patch_phase = VECTOR_GET_ELEMENT_AS(Image*,vector_phase,i);
-
         GVector* featureVector = computeHistogramOfOrientedGradient(patch, patch_mag, patch_phase, blocks_x, blocks_y, theta);
         for (size_t j = 0; j < matrix->numberColumns; ++j) {
             MATRIX_GET_ELEMENT_BI_AS(float,matrix,k) = VECTOR_GET_ELEMENT_AS(float,featureVector,j);

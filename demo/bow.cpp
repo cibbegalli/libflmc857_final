@@ -6,9 +6,11 @@ int main(int argc, char **argv) {
 
     //Caminhos onde esta o arquivo txt gerado pelo o script python "selec_samples2.py"
     //os caminhos vao mudar para cada pessoa
-    char const* const fileName_createDict = "/home/cibelle/Documentos/Databases/COIL100/train_paths.txt";
-    char const* const fileName_createTrain = "/home/cibelle/Documentos/Databases/COIL100/train_paths.txt";
+    //char const* const fileName_createDict = "/home/cibelle/Documentos/Databases/COIL100/train_paths.txt";
+    //char const* const fileName_createTrain = "/home/cibelle/Documentos/Databases/COIL100/train_paths.txt";
     char const* const fileName_createTest = "/home/cibelle/Documentos/Databases/COIL100/test_paths.txt";
+    char const* const fileName_createDict = "/home/cibelle/Documentos/Databases/COIL100/test_paths.txt";
+    char const* const fileName_createTrain = "/home/cibelle/Documentos/Databases/COIL100/test_paths.txt";
     /*
     char const* const fileName_createDict = "/home/deangeli/databases/train_paths.txt";
     char const* const fileName_createTrain = "/home/deangeli/databases/train_paths.txt";

@@ -1,5 +1,7 @@
 #include "histogram.h"
 
+
+
 void writeHistogram(Histogram *hist, char *filename) {
     FILE *fp = fopen(filename, "w");
     int i;
@@ -182,71 +184,6 @@ GVector* computeHistogramOfOrientedGradient(Image *img, Image *mag, Image *phase
     return histVec;
 }
 
-GVector* computeHistogramOfOrientedGradientForColorImage(Image *img, Image *mag, Image *phase, int bx, int by, int theta) {
-    
-    int nBins = 360/theta;
-
-    int nCeils = bx*by;
-    int cx = img->nx/bx;
-    int cy = img->ny/by;
-
-    FeatureMatrix *histograms = createFeatureMatrix(nCeils, nBins);
-    for(int i=0; i<nCeils; i++){
-        setValueInFeatureVector(histograms->featureVector[i], 0.0);
-    }
-
-    FeatureVector *sum = createFeatureVector(nCeils);
-    setValueInFeatureVector(sum, 0.0);
-
-
-    for(int i=0; i<img->nx; i++) {
-        for(int j=0; j<img->ny; j++) {
-
-            // Valores magnitude e fase
-            float w = imageVal(mag, i, j);
-            float z = imageVal(phase, i, j);
-
-            int b1 = ((int)(z/theta)) % nBins;
-            int b2 = ((int)(z/theta + 1)) % nBins;
-            float z1 = (b1+1)*theta - theta/2.0;
-            float z2 = b2*theta + theta/2.0;
-
-            int column = i/cx, line = j/cy;
-            int ceil = column + line*(img->nx/cx);
-
-            float w1 = w * (z-z1)/theta;
-            float w2 = w * (z2-z)/theta;
-
-            if(w1 < 0) w1 *= -1.0;
-            if(w2 < 0) w2 *= -1.0;
-     
-            histograms->featureVector[ceil]->features[b1]+=w1;
-            histograms->featureVector[ceil]->features[b2]+=w2;
-        }
-    }
-
-    for(int i=0; i<nCeils; i++) {
-    	for(int j=0; j<nBins; j++) {
-    		sum->features[i] += (histograms->featureVector[i]->features[j]*histograms->featureVector[i]->features[j]);
-    	}
-    }
-    GVector *histVec = createNullVector(nCeils*nBins,sizeof(float));
-    float epsilon = 0.0000001;
-    int k=0;
-    for(int i=0; i<nCeils; i++) {
-        float norm = sqrt(sum->features[i]) + epsilon;
-        for(int j=0; j<nBins; j++) {
-            float val = histograms->featureVector[i]->features[j]/norm;
-            VECTOR_GET_ELEMENT_AS(float,histVec,k) = val;
-            k++;
-        }
-    }
-    destroyFeatureVector(&sum);
-    destroyFeatureMatrix(&histograms);
-
-    return histVec;
-}
-
 Image *ProbabilityDensityFunction(Image *image, double standardDeviation)
 {
     Image *pdf = createImage(image->nx, image->ny,1);
@@ -304,15 +241,3 @@ Histogram* createHistogram(int n){
 }
 
 
-/*
-GVector* computeHOG(Image *image) {
-
-    //Validação tamanho da janela/imagem/patch
-    if(image->nx % HOG_N2 != 0 || image>ny % HOG_M2 != 0) {
-        printf("Imagem não alinhada número de células\n");
-        return NULL;
-    }
-
-    return hog(image);
-}
-*/
