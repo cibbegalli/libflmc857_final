@@ -92,9 +92,9 @@ int main(int argc, char **argv) {
     *////////////////////////////////////////
     bowManager->featureExtractorFunction = computeHogBow;
     ArgumentList* colorFeatureExtractorArguments = createArgumentList();
-    ARGLIST_PUSH_BACK_AS(size_t,colorFeatureExtractorArguments,2); //nBins per channel
-    ARGLIST_PUSH_BACK_AS(size_t,colorFeatureExtractorArguments,2); //total number of channels
-    ARGLIST_PUSH_BACK_AS(size_t,colorFeatureExtractorArguments,20); //theta
+    ARGLIST_PUSH_BACK_AS(size_t,colorFeatureExtractorArguments,4); //nBins per channel
+    ARGLIST_PUSH_BACK_AS(size_t,colorFeatureExtractorArguments,4); //total number of channels
+    ARGLIST_PUSH_BACK_AS(size_t,colorFeatureExtractorArguments,10); //theta
     bowManager->argumentListOfFeatureExtractor = colorFeatureExtractorArguments; //passando a lista de argumentos do feature extractor para o bow manager
         
     ///////////////////////////////////////////////////////

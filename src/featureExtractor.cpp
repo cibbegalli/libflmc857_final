@@ -58,6 +58,8 @@ Matrix* computeHog(GVector* vector_images, Image *mag, Image *phase, int blocks_
             k++;
         }
         destroyVector(&featureVector);
+        destroyImage(&patch_mag);
+        destroyImage(&patch_phase);
     }
 
     destroyVector(&vector_mag);
@@ -66,7 +68,7 @@ Matrix* computeHog(GVector* vector_images, Image *mag, Image *phase, int blocks_
     return matrix;
 }
 
-void computeGradient(Image* img, Image** p_mag, Image** p_phase) {
+void computeGradient(Image* image, Image** p_mag, Image** p_phase) {
 
     AdjacencyRelation *adjRel = createCircularAdjacency(RADIUS_GRADIENT);
 
@@ -78,7 +80,7 @@ void computeGradient(Image* img, Image** p_mag, Image** p_phase) {
 
     for(int i=0; i<adjRel->n; i++) {
 
-        double dist = sqrt(adjRel->dx[i]*adjRel->dx[i] + adjRel->dy[i]*adjRel->dy[i])+epsilon;
+        double dist = sqrt((double)adjRel->dx[i]*adjRel->dx[i] + adjRel->dy[i]*adjRel->dy[i])+epsilon;
     
         int dist_x = adjRel->dx[i];
         double Wx = exp( (-1) * dist * dist/c) * (dist_x/dist);
@@ -86,10 +88,11 @@ void computeGradient(Image* img, Image** p_mag, Image** p_phase) {
         int dist_y = adjRel->dy[i];
         double Wy = exp( (-1) * dist * dist/c) * (dist_y/dist);
         
-        Kx->weight[i] = Wx;
-        Ky->weight[i] = Wy;
+        Kx->weight[i] = (float)Wx;
+        Ky->weight[i] = (float)Wy;
     }
 
+    Image* img = convertRGBtoYCbCr(image);
     Image* img_mag = createImage(img->nx, img->ny, 1);
     Image* img_phase = createImage(img->nx, img->ny, 1);
 
@@ -114,7 +117,7 @@ void computeGradient(Image* img, Image** p_mag, Image** p_phase) {
                 }               
             }
             
-            double G = sqrt((double)Gx*Gx + Gy*Gy); //obtendo magnitude 
+            double G = sqrt((double)Gx*Gx + Gy*Gy+epsilon); //obtendo magnitude 
             img_mag->channel[0][index] = G;
 
             Gx = Gx/G; Gy = Gy/G;
@@ -131,7 +134,7 @@ void computeGradient(Image* img, Image** p_mag, Image** p_phase) {
         }
 
     }
-
+    destroyImage(&img);
     (*p_mag) = img_mag;
     (*p_phase) = img_phase;
 }

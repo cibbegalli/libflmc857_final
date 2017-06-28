@@ -9,7 +9,6 @@ Matrix* kmeansClustering(Matrix* featureMatrix, size_t nClusters,
                          double tolerance, int seed,
                          DistanceFunction distanceFunction,
                          ArgumentList* argumentListDistanceFunction){
-
     Matrix* centroides_old = createMatrix(nClusters,featureMatrix->numberColumns,sizeof(float));
     if(nClusters >= featureMatrix->numberRows){
         float* minimuns = (float*)calloc(featureMatrix->numberColumns,sizeof(float));
@@ -45,7 +44,6 @@ Matrix* kmeansClustering(Matrix* featureMatrix, size_t nClusters,
         free(maximums);
         return centroides_old;
     }
-
 
     size_t k = 0;
     bool *isUsed = (bool*)calloc(featureMatrix->numberRows,sizeof(*isUsed));

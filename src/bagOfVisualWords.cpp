@@ -88,11 +88,17 @@ GVector* gridSamplingBow(Image* image, Image* isf, BagOfVisualWordsManager* bagO
         printf("[gridSampling] invalid argument list");
     }else if(argumentList->length == 1){
         size_t patchSize = ARGLIST_GET_ELEMENT_AS(size_t ,argumentList,0);
-        return gridSampling(image,patchSize,patchSize);
+        Image* img = convertRGBtoYCbCr(image);
+        GVector* patchs=gridSampling(img,patchSize,patchSize);
+        destroyImage(&img);
+        return patchs;
     }else if(argumentList->length == 2){
         size_t patchSizeX = ARGLIST_GET_ELEMENT_AS(size_t,argumentList,0);
         size_t patchSizeY = ARGLIST_GET_ELEMENT_AS(size_t,argumentList,1);
-        return gridSampling(image,patchSizeX,patchSizeY);
+        Image* img = convertRGBtoYCbCr(image);
+        GVector* patchs= gridSampling(img,patchSizeX,patchSizeY);
+        destroyImage(&img);
+        return patchs;
     }
     return NULL;
 }
@@ -143,12 +149,15 @@ Matrix* computeHogBow(GVector* vector, Image* image, BagOfVisualWordsManager* ba
     Image* mag;
     Image* phase;
     computeGradient(image, &mag, &phase);
+
     int blocks_x = ARGLIST_GET_ELEMENT_AS(size_t,argumentList,0);
     int blocks_y = ARGLIST_GET_ELEMENT_AS(size_t,argumentList,1);
     int theta = ARGLIST_GET_ELEMENT_AS(size_t,argumentList,2);
     Matrix* m = computeHog(vector, mag, phase, blocks_x, blocks_y, theta);
     destroyImage(&mag);
     destroyImage(&phase);
+
+    return m;
 }
 
 
@@ -404,6 +413,8 @@ GVector* computeCountHistogram_bow(Matrix* featureMatrix, BagOfVisualWordsManage
 
 
 Matrix* kmeansClusteringBow(Matrix* featureMatrix, BagOfVisualWordsManager* bagOfVisualWordsManager){
+
+
     ArgumentList* argumentList = bagOfVisualWordsManager->argumentListOfClustering;
     if(argumentList->length <= 0){
         printf("[kmeansClustering] invalid argument list\n");
