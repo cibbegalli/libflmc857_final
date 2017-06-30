@@ -17,8 +17,9 @@
 void computeGradient(Image* img, Image** p_mag, Image** p_phase);
 
 Matrix* computeColorHistogram(GVector* vector_images,size_t nbinsPerChannel,size_t totalNumberBins);
-Matrix* computeHog(GVector* vector_images, Image *mag, Image *phase, int blocks_x, int blocks_y, int theta);
-
+Matrix* computeHog(GVector* vector_images,  int blocks_x, int blocks_y, int theta);
+Matrix* computeColorHistogramAndHog(GVector* vector_images, int blocks_x, int blocks_y, 
+                                    int theta, size_t nbinsPerChannel,size_t totalNumberBins);
 
 
 #endif //LIBFL_FEATUREEXTRACTOR_H

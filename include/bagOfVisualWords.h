@@ -22,7 +22,7 @@
 #include "featureExtractor.h"
 #include "classifiers.h"
 #include "clustering.h"
-
+#include "featureVector.h"
 
 
 
@@ -31,7 +31,7 @@ typedef struct _bagOfVisualWordsManager BagOfVisualWordsManager;
 
 
 typedef GVector* (*ImageSamplerFunction)(Image* image, Image *isf, BagOfVisualWordsManager* bagOfVisualWordsManager);
-typedef Matrix* (*FeatureExtractorFunction)(GVector* outputSampler, Image* image, BagOfVisualWordsManager* bagOfVisualWordsManager);
+typedef Matrix* (*FeatureExtractorFunction)(GVector* outputSampler, Image* image, Image* isf, BagOfVisualWordsManager* bagOfVisualWordsManager);
 typedef Matrix* (*ClusteringFunction)(Matrix* outputFeatureExtractor_allSamples, BagOfVisualWordsManager* bagOfVisualWordsManager);
 typedef GVector* (*MountHistogramFunction) (Matrix* outputFeatureExtractor_singleSample,BagOfVisualWordsManager* bagOfVisualWordsManager);
 
@@ -75,11 +75,15 @@ void destroyBagOfVisualWordsManager(BagOfVisualWordsManager** pBagOfVisualWordsM
 
 //
 GVector* gridSamplingBow(Image* image, Image* isf, BagOfVisualWordsManager* bagOfVisualWordsManager);
+GVector* samplingByISFBow(Image* image, Image* isf, BagOfVisualWordsManager* bagOfVisualWordsManager);
+GVector* samplingByISFColorBow(Image* image, Image* isf, BagOfVisualWordsManager* bagOfVisualWordsManager);
+
+Matrix* computeColorHistogramBow(GVector* vector, Image* image, Image* isf,BagOfVisualWordsManager* bagOfVisualWordsManager);
 //
-//
-Matrix* computeColorHistogramBow(GVector* vector, Image* image, BagOfVisualWordsManager* bagOfVisualWordsManager);
-//
-Matrix* computeHogBow(GVector* vector, Image* image, BagOfVisualWordsManager* bagOfVisualWordsManager);
+Matrix* computeHogBow(GVector* vector, Image* image, Image* isf, BagOfVisualWordsManager* bagOfVisualWordsManager);
+
+Matrix* computeColorAndHogBow(GVector* vector, Image* image, Image* isf, BagOfVisualWordsManager* bagOfVisualWordsManager);
+
 //
 Matrix* kmeansClusteringBow(Matrix* featureMatrix, BagOfVisualWordsManager* bagOfVisualWordsManager);
 //

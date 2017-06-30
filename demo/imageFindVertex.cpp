@@ -1,7 +1,7 @@
 #include "FL.h"
 
 #define DIFF_SUPER_PIXELS 3
-#define SPARSE_HIST 5
+#define SPARSE_HIST 2
 
 
 int main(int argc, char **argv) {
@@ -12,9 +12,9 @@ int main(int argc, char **argv) {
 
     int patchSizeX = 64;
     int patchSizeY = 64;
-    Image* image = readImagePGM("urso.pgm");
+    Image* image = readImagePGM("../data/000001_000008.pgm");
     Image* subImage = NULL;
-    Image* realImage = readImage("image1.png");
+    Image* realImage = readImage("../data/000001_00000805.ppm");
     Histogram* histo;
     char number[15];
     char filename[80];
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
             //imprime patch
             if (count >= DIFF_SUPER_PIXELS){
                 subImage = extractSubImage(realImage, x, y, patchSizeX, patchSizeY,true);
-                histo = computeHistogram(subImage,128, true);
+                histo = computeHistogram(subImage,32, true);
                 max = 0;
                 
                 for(int i = 0; i<histo->n; i++){
@@ -56,11 +56,13 @@ int main(int argc, char **argv) {
                     strcat(filename,number);
                     strcat(filename,".ppm");
                     memset(number,0,sizeof(number));
+                    printf("writeImage \n");
                     writeImage(subImage,filename);
-                    destroyImage(&subImage);
+
                     patch++;
                 }
                 destroyHistogram(&histo);
+                destroyImage(&subImage);
             }
             
         }

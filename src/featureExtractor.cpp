@@ -3,6 +3,7 @@
 //
 
 #include "featureExtractor.h"
+#include "../demo/parameters.cpp"
 
 Matrix* computeColorHistogram(GVector* vector_images,size_t nbinsPerChannel,size_t totalNumberBins){
     Matrix* matrix = createMatrix(vector_images->size,totalNumberBins,sizeof(float));
@@ -21,12 +22,7 @@ Matrix* computeColorHistogram(GVector* vector_images,size_t nbinsPerChannel,size
 
 //GVector* computeHistogramOfOrientedGradient(Image *img, Image *mag, Image *phase, int bx, int by, int theta)
 
-Matrix* computeHog(GVector* vector_images, Image *mag, Image *phase, int blocks_x, int blocks_y, int theta) {
-    // sampling mag
-    GVector* vector_mag = gridSampling(mag, 64, 64); 
-
-    // sampling phase
-    GVector* vector_phase = gridSampling(phase, 64, 64); 
+Matrix* computeHog(GVector* vector_images, int blocks_x, int blocks_y, int theta) {
     
     //parameters for hog
     if(360 % theta != 0) {
@@ -48,9 +44,13 @@ Matrix* computeHog(GVector* vector_images, Image *mag, Image *phase, int blocks_
     Matrix* matrix = createMatrix(vector_images->size,totalNumberBins,sizeof(float));
     int k = 0;
     for (size_t i = 0; i < vector_images->size; ++i) {
-        Image* patch = VECTOR_GET_ELEMENT_AS(Image*,vector_images,i);
-        Image* patch_mag = VECTOR_GET_ELEMENT_AS(Image*,vector_mag,i);
-        Image* patch_phase = VECTOR_GET_ELEMENT_AS(Image*,vector_phase,i);
+        Image* patch_color = VECTOR_GET_ELEMENT_AS(Image*,vector_images,i);
+        Image* patch = convertRGBtoYCbCr(patch_color);
+
+        Image* patch_mag;
+        Image* patch_phase;
+        computeGradient(patch_color, &patch_mag, &patch_phase);
+
         GVector* featureVector = computeHistogramOfOrientedGradient(patch, patch_mag, patch_phase, blocks_x, blocks_y, theta);
         for (size_t j = 0; j < matrix->numberColumns; ++j) {
             MATRIX_GET_ELEMENT_BI_AS(float,matrix,k) = VECTOR_GET_ELEMENT_AS(float,featureVector,j);
@@ -59,10 +59,36 @@ Matrix* computeHog(GVector* vector_images, Image *mag, Image *phase, int blocks_
         destroyVector(&featureVector);
         destroyImage(&patch_mag);
         destroyImage(&patch_phase);
+        destroyImage(&patch);
     }
 
-    destroyVector(&vector_mag);
-    destroyVector(&vector_phase);
+    return matrix;
+}
+
+Matrix* computeColorHistogramAndHog(GVector* vector_images, int blocks_x, int blocks_y, 
+                                    int theta, size_t nbinsPerChannel,size_t totalNumberBins) {
+    Matrix* m1 = computeHog(vector_images, blocks_x, blocks_y, theta);
+    Matrix* m2 = computeColorHistogram(vector_images, nbinsPerChannel, totalNumberBins);
+
+    int totalNumberBinsHOG = (360/theta) * blocks_x * blocks_y;
+    int numberColumns = totalNumberBins + totalNumberBinsHOG;
+
+    Matrix* matrix = createMatrix(vector_images->size,numberColumns,sizeof(float));
+    int k = 0, k1=0, k2=0;
+    for (size_t i = 0; i < vector_images->size; ++i) {
+        for(int j=0; j<totalNumberBinsHOG; j++) {
+            MATRIX_GET_ELEMENT_BI_AS(float,matrix,k) = MATRIX_GET_ELEMENT_BI_AS(float,m1,k1);
+            k++;
+            k1++;
+        }
+        for(int j=totalNumberBinsHOG; j<numberColumns; j++) {
+            MATRIX_GET_ELEMENT_BI_AS(float,matrix,k) = MATRIX_GET_ELEMENT_BI_AS(float,m2,k2);
+            k++;
+            k2++;
+        }
+    }
+    destroyMatrix(&m1);
+    destroyMatrix(&m2);
 
     return matrix;
 }
@@ -133,6 +159,9 @@ void computeGradient(Image* image, Image** p_mag, Image** p_phase) {
         }
 
     }
+    destroyKernel(&Kx);
+    destroyKernel(&Ky);
+    destroyAdjacencyRelation(&adjRel);
     destroyImage(&img);
     (*p_mag) = img_mag;
     (*p_phase) = img_phase;
